@@ -138,13 +138,13 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
            #!/bin/bash
-           wget https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/amazon-cloudwatch-agent.deb
-           dpkg -i /tmp/amazon-cloudwatch-agent.deb
-           apt-get update -y
-           apt-get  install -y python-pip
-           easy_install --script-dir /opt/aws/bin https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
-           /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource EC2Instance --region ${AWS::Region} --configsets default
-           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource EC2Instance --region ${AWS::Region}
+           wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+           sudo dpkg -i amazon-cloudwatch-agent.deb
+           sudo aws s3 cp s3://bootcamp-data-engineering-222/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+           sudo mkdir /usr/share/collectd
+           sudo touch /usr/share/collectd/types.db
+           sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+           sudo systemctl restart amazon-cloudwatch-agent
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -153,6 +153,10 @@ Resources:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
+        CidrIp: !Ref 'SSHLocation'
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
         CidrIp: !Ref 'SSHLocation'
       
 Outputs:

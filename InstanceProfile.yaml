@@ -21,6 +21,17 @@ Resources:
       Path: /
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/CloudWatchAgentAdminPolicy'
+      Policies:
+         - PolicyDocument:
+            Statement:
+              - Action:
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:GetObject
+                Effect: Allow
+                Resource: arn:aws:s3:::*
+            Version: '2012-10-17'
+           PolicyName: PutDeleteEc2Bucket
       RoleName: !Ref InstanceProfileName
   InstanceProfileDev: 
     Type: "AWS::IAM::InstanceProfile"
