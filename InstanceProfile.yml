@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS CloudFormation template to create IAM roles.
+Parameters:
+  InstanceProfileName:
+    Description: Instance Profile Name
+    Type: String
+    Default: IAMRoleEC2
+Resources:
+  ec2Role:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/CloudWatchAgentAdminPolicy'
+      RoleName: !Ref InstanceProfileName
+  InstanceProfileDev: 
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: !Ref InstanceProfileName
+      Path: "/"
+      Roles: 
+        - 
+          Ref: "ec2Role"
+Outputs:
+    IAMROLE:
+      Description: IAM Role Name
+      Value: !Sub InstanceProfileName
+      Export: 
+        Name: !Sub '${AWS::StackName}-RoleName'
